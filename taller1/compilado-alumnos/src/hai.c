@@ -1,5 +1,12 @@
-#include /* constantes como SIGINT*/
-#include #include #include #include #include #include #include
+#include <signal.h> /* constantes como SIGINT*/
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <sys/reg.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <errno.h>
+
 int intentos = 5;
 
 void ya_va_hand() {

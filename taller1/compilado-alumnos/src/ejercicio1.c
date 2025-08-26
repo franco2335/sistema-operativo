@@ -1,4 +1,13 @@
-#include  #include  #include  #include  #include  #include  #include  #include  #include  
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <string.h>
+#include <sys/types.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <time.h>
+
 int n;
 int numero_maldito;
 pid_t* processes;

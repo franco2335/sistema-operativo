@@ -12,9 +12,10 @@ int intentos = 5;
 void ya_va_hand() {
 	pid_t my_parent = getppid();
 
-	printf("Quedan %d intentos\n", intentos);
+	
 	intentos--;
 	printf("Ya va!\n");
+	printf("Quedan %d intentos\n", intentos);
 
 	if (!intentos)
 		kill(my_parent, SIGINT);
@@ -32,14 +33,16 @@ int main(int argc, char* argv[]) {
 
 	pid_t my_child = fork();
 
-	if (!my_child) {
+	if (my_child == 0) {
 		signal(SIGURG, ya_va_hand);
 		printf("Soy hijo\n");
-		sleep(10);
+		while (1){
+			sleep(1);
+		}
 	} else {
 		signal(SIGINT, interrupt_hand);
 		sleep(1);
-		printf("Soy padre\n");
+		printf("Soy padre\n"); 
 		for (int i = 0; i < 5; i++) {
 			sleep(1);
 			printf("sup!\n");
@@ -48,6 +51,6 @@ int main(int argc, char* argv[]) {
 		//exit(EXIT_SUCCESS);
 	}
 
-	execvp(bin_path, argv++);
+	//execvp(bin_path, argv++);
 	return 0;
 }

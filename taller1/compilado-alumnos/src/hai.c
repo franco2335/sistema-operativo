@@ -7,47 +7,40 @@
 #include <stdlib.h>
 #include <errno.h>
 
-int intentos = 5;
+int attempts = 5;
 
-void ya_va_hand() {
-	pid_t my_parent = getppid();
-
-	printf("Quedan %d intentos\n", intentos);
-	intentos--;
+void child_hand() {
 	printf("Ya va!\n");
-
-	if (!intentos)
-		kill(my_parent, SIGINT);
-
+	attempts--;
 }
 
-void interrupt_hand() {
-	pid_t child = wait(NULL);
+void parent_hand() {
+	pid_t my_child = wait(NULL);
 }
 
 int main(int argc, char* argv[]) {
-	char* bin_path = argv[1];
-
-	int bin_args_q = argc - 1;
-
 	pid_t my_child = fork();
 
+	char* bin_name = argv[1];
+
 	if (!my_child) {
-		signal(SIGURG, ya_va_hand);
-		printf("Soy hijo\n");
-		sleep(10);
+		signal(SIGURG, child_hand);
+		while (attempts) continue;
+
+		pid_t my_parent = getppid(); 
+
+		kill(my_parent, SIGINT);
+
+		execvp(bin_name, argv+1);
 	} else {
-		signal(SIGINT, interrupt_hand);
-		sleep(1);
-		printf("Soy padre\n");
+		signal(SIGINT, parent_hand);
+
 		for (int i = 0; i < 5; i++) {
 			sleep(1);
 			printf("sup!\n");
 			kill(my_child, SIGURG);
 		}
-		//exit(EXIT_SUCCESS);
 	}
 
-	execvp(bin_path, argv++);
 	return 0;
 }

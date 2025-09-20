@@ -51,6 +51,19 @@ int calcular(const char *expresion) {
     return resultado;
 }
 
+void handle_child() {
+    int client = accept(server_socket, (struct sockaddr *)&client_addr, &clen);
+
+    if (client == -1) {
+        perror("Accept Error");
+        exit(EXIT_FAILURE);
+    }
+
+    printf("CHILD: Acepté al cliente\n");
+
+    exit(EXIT_SUCCESS);
+}
+
 int main() {
     server_addr.sun_family = AF_UNIX;
     strcpy(server_addr.sun_path, "unix_socket");
@@ -67,15 +80,18 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
+
     while(1) {
+        printf(".");
         int conn;
-        struct timeval tv = { .tv_sec = 0, .tv_usec = 0 };  // tiempo de espera 0: no bloquea, revisa y regresa de inmediato
+        struct timeval tv = { .tv_sec = 2, .tv_usec = 0 };  // tiempo de espera 0: no bloquea, revisa y regresa de inmediato
         fd_set socket_set;
 
         FD_ZERO(&socket_set);
         FD_SET(server_socket, &socket_set);
 
         int ret = select(server_socket + 1, &socket_set, NULL, NULL, &tv);
+
         if (ret == -1) {
             perror("select");
             exit(EXIT_FAILURE);
@@ -83,6 +99,22 @@ int main() {
 
         if (ret) {
             printf("servidor: nuevo cliente...\n");
+
+            if (!fork()) {
+                handle_child();
+            }
+
+            sleep(1);
+
+            int client = accept(server_socket, (struct sockaddr *)&client_addr, &clen);
+
+            if (client == -1) {
+                perror("Accept Error");
+                exit(EXIT_FAILURE);
+            }
+
+            printf("PADRE: Acepté al cliente\n");
+
         }
     }
 
